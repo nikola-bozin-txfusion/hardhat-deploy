@@ -543,7 +543,9 @@ export function addHelpers(
       args,
       network,
       ethersSigner,
-      overrides
+      overrides,
+      options.deploymentType,
+      options.salt
     );
 
     const unsignedTx = await factory.getDeployTransaction();
@@ -616,6 +618,8 @@ export function addHelpers(
       transactionHash: tx.hash,
       args,
       linkedData: options.linkedData,
+      salt: options.salt,
+      deploymentType: options.deploymentType
     };
     if (artifactName && willSaveToDisk()) {
       const extendedArtifact = await partialExtension.getExtendedArtifact(
@@ -787,7 +791,7 @@ export function addHelpers(
         linkedArtifact,
         args,
         network,
-        ethersSigner
+        ethersSigner,
       );
 
       if (unknown) {
@@ -838,7 +842,10 @@ export function addHelpers(
       linkedArtifact,
       args,
       network,
-      ethersSigner
+      ethersSigner,
+      {},
+      options.deploymentType,
+      options.salt
     );
 
     if (options.deterministicDeployment) {
@@ -2336,7 +2343,7 @@ Note that in this case, the contract deployment will not behave the same if depl
                 getArtifact,
                 diamondArtifact,
                 diamondConstructorArgs,
-                network
+                network,
               );
 
               const create2DeployerAddress =

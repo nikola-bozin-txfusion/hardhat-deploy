@@ -6,35 +6,40 @@ import {
 import { ContractFactory, PayableOverrides, Signer, ethers } from 'ethers';
 import { Artifact } from 'hardhat/types';
 import * as zk from 'zksync-ethers';
-import { Address, Deployment, DeployOptions, ExtendedArtifact } from '../types';
+import { Address, Deployment, DeploymentType, DeployOptions, ExtendedArtifact } from '../types';
 import { getAddress } from '@ethersproject/address';
 import { keccak256 as solidityKeccak256 } from '@ethersproject/solidity';
-import { hexConcat } from '@ethersproject/bytes';
+import { BytesLike, hexConcat } from '@ethersproject/bytes';
 
 export class DeploymentFactory {
   private factory: ContractFactory;
   private artifact: Artifact | ExtendedArtifact;
   private isZkSync: boolean;
   private getArtifact: (name: string) => Promise<Artifact>;
-  private overrides: PayableOverrides;
+  private overrides: PayableOverrides & {salt?:BytesLike};
   private args: any[];
+  private salt: BytesLike;
   constructor(
     getArtifact: (name: string) => Promise<Artifact>,
     artifact: Artifact | ExtendedArtifact,
     args: any[],
     network: any,
     ethersSigner?: Signer | zk.Signer,
-    overrides: PayableOverrides = {}
+    overrides: PayableOverrides = {},
+    deploymentType: DeploymentType | undefined = 'create',
+    salt:BytesLike | undefined = zk.utils.ZERO_HASH
   ) {
     this.overrides = overrides;
     this.getArtifact = getArtifact;
     this.isZkSync = network.zksync;
     this.artifact = artifact;
+    this.salt=salt;
     if (this.isZkSync) {
       this.factory = new zk.ContractFactory(
         artifact.abi,
         artifact.bytecode,
-        ethersSigner as zk.Signer
+        ethersSigner as zk.Signer,
+        deploymentType,
       );
     } else {
       this.factory = new ContractFactory(
@@ -90,6 +95,7 @@ export class DeploymentFactory {
         customData: {
           factoryDeps,
           feeToken: zk.utils.ETH_ADDRESS,
+          salt:this.salt
         },
       };
       overrides = {
@@ -97,7 +103,6 @@ export class DeploymentFactory {
         ...customData,
       };
     }
-
     return this.factory.getDeployTransaction(...this.args, overrides);
   }
 

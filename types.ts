@@ -8,6 +8,7 @@ import {
 } from 'hardhat/types';
 import type {BigNumber} from '@ethersproject/bignumber';
 import {Signer} from '@ethersproject/abstract-signer';
+import { BytesLike } from 'ethers';
 
 export type ExtendedArtifact = {
   abi: any[];
@@ -168,8 +169,16 @@ export interface DeployOptionsBase extends TxOptions {
   proxy?: boolean | string | ProxyOptions; // TODO support different type of proxies ?
 }
 
+export type DeploymentType =
+| 'create'
+| 'createAccount'
+| 'create2'
+| 'create2Account';
+
 export interface DeployOptions extends DeployOptionsBase {
   deterministicDeployment?: boolean | string;
+  deploymentType?: DeploymentType | undefined;
+  salt?:BytesLike
 }
 
 export interface Create2DeployOptions extends DeployOptionsBase {
@@ -361,6 +370,8 @@ export interface DeploymentSubmission {
   libraries?: Libraries;
   gasEstimates?: any;
   factoryDeps?: string[];
+  salt?:BytesLike,
+  deploymentType?:DeploymentType
 }
 
 // export type LibraryReferences = {

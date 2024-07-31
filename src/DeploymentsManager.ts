@@ -883,6 +883,8 @@ export class DeploymentsManager {
           storageLayout: deployment.storageLayout,
           methodIdentifiers: deployment.methodIdentifiers,
           gasEstimates: deployment.gasEstimates, // TODO double check : use evm field ?
+          salt:deployment.salt,
+          deploymentType:deployment.deploymentType
         },
         bnReplacer
       )
